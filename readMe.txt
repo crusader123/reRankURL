@@ -40,6 +40,7 @@ Now produce wights of features using vowpall wabbit model using command:
 where 	outputFile.txt contains the feature vector
 	basicFeature.model is the output of vw which return the value of all the feature. Further these values will be used to re-rank the URLs.
 
+Small test file can be downloaded from here: https://www.dropbox.com/s/2mfxqx0y915yrth/test
 
 Time taken: vw command will take approx 23mins for 2.2GB input feature vector file.
 ================================================================================================================
