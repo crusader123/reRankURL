@@ -1,0 +1,319 @@
+<!doctype html>
+
+<!--
+
+IMPORTANT INSTRUCTIONS
+
+Do Not Modify Any HTML Tags or Style Sheet Elements
+Do Not create any new DIV tags
+
+The final report should be 2000-3000 words long
+
+Save your HTML file as <Project#>-<Group#>-Project-Title.html
+e.g. 13-31-Mining-Named-Entities.html
+
+
+You can use following tags:-
+> List Elements : ul/ol/li
+> Image : img
+> Content Elements : Span
+> Header Tags : H1, H2, H3, H4
+> Formatting Tags : b, i, u
+> Special Characters : &copy; &quot; etc
+
+To include mathematics, use other tools to create formulae and put the image here
+
+
+
+-->
+
+
+<html lang="en">
+<head>
+    <title> Re-rank web documents using personal preferences </title>
+    <link href="IRE2014styles.css" type="stylesheet" rel="stylesheet">
+</head>
+<body>
+    <div class="ire2014_container">
+    <h2 class="ire2014_h2">Re-rank web documents using personal preferences</h2>
+    <h4 class="ire2014_h4">Group Number : 04 | Project Number : 23 </h4>
+    <div class="ire2014_authors">
+        <div class="ire2014_authorname">
+            Satarupa Guha (201307566) <br>
+            satarupe.guha@research.iiit.ac.in
+        </div>
+        
+        <div class="ire2014_authorname">
+            Priyanshu Agrawal (201305511) <br>
+            priyanshu.agrawal@students.iiit.ac.in
+        </div>
+
+        <div class="ire2014_authorname">
+            Shubham Sangal (201101008) <br>
+            shubham.sangal@students.iiit.ac.in
+        </div>
+
+        <div class="ire2014_authorname">
+            Kaushik Srinivasan (201001074) <br>
+	    kaushik.srinivasan@students.iiit.ac.in
+        </div>
+
+    </div>
+    
+    <div class="ire2014_abstract">
+        This project is based on the Personalized Web Search Challenge organized by Kaggle. The aim of this challenge is to re-rank URLs of each SERP returned by the search engine according to  the personal preferences of the users.
+In other words, participants need to personalize search using the long-term (user history based) and short-term (session-based) user context. The evaluation relies on a variant of a dwell-time based model of personal relevance and is data- driven, as it is presently accepted in the state-of the-art research on personalized search.
+    </div>
+    
+    <div class="ire2014_report">
+        <h3 class="ire2014_h3">1. Introduction</h3>
+
+	<p>
+	        As web search is becoming more and more &quot;intelligent&quot;, we as users keep asking for more. We expect search engines to know exactly what we mean when we type in a query But as more and more topics are being discussed on the web and our vocabulary remains relatively stable, it is increasingly difficult to let the search engine know what we want. Attempts to solve this problem leads us to user behavior modeling. One aspect of user&#39;s behavior that provides especially strong signals for delivering better relevance is an individual&#39;s history of queries and clicked documents.
+	</p>
+
+	<p>
+This project provides a rewarding opportunity to consolidate and scrutinize the work from industrial labs on personalizing web search using user logged search behavior context. 
+	</p>
+
+	<p>
+To respect the privacy concerns of the search engine users, all of search log data in this dataset has been fully anonymized which has user ids, queries, query terms, urls, url domains, clicks etc.
+	</p>
+
+        <h3 class="ire2014_h3">2. Related Work</h3>
+        For this project we are following the paper written by the winner of this contest. we use logistic regression as a
+point-wise model to deal with the huge size of data by taking advantage of its fast training speed. Speed is of utmost essence here because the query log data set becomes huge after we represent it in feature space.
+
+        
+        <h3 class="ire2014_h3">3. Approach</h3>
+Our approach consists of two main components  Feature Engineering and Modeling/Training.
+<br><br>
+<ul>
+<li><b class="ire2014_h4"> Feature Engineering</b></li>
+<br><br>
+	The URLs are labeled using 3 grades of relevance: 0 (irrelevant), 1 (relevant), 2 (highly relevant). The labeling is done automatically, based on dwell-time and, hence, user-specific:
+	<br><br>
+	<ul >
+	<li>
+	0 (irrelevant) grade corresponds to documents with no clicks and clicks with dwell time strictly less than 50 time units. 
+	</li>
+<br>
+	<li>
+	1 (relevant) grade corresponds to documents with clicks and dwell time between 50 and 399 time units (inclusively).
+	</li>
+<br>
+	<li>
+	2 (highly relevant) grade corresponds to the documents with clicks and dwell time not shorter than 400 time units. In addition, the relevance grade of 2 assigned to the documents associated with clicks which are the last actions in the corresponding sessions.
+	</li>
+	</ul>
+<br>
+We extract three types of features from the data- Basic features, user-specific features and pair-wise features. 
+<br><br>
+<li type=none><ul>
+<li><b> Basic Feature </b></li>
+	The basic features are based on a URL-query instance only. These features comprise of the following: result position, unique query ID, query term IDs, list of url IDs, list of domain IDs, joint feature between URL and unique query IDs, joint feature between domainID and its position.
+<br><br>
+
+<li type=><b> User-specific Feature </b></li>
+
+Given a URL impression, it is either new or repeated. We split repeated URLs into five groups: 
+<ul>
+	<li>
+	URLs previously displayed and clicked with a dwell time showing a relevance of 2
+	</li>
+	<br>
+	<li>
+	URLs previously displayed and clicked with a dwell time showing a relevance of 1
+	</li>
+	<br>
+	<li>
+	URLs previously displayed and clicked with a dwell time showing a relevance of 0
+	</li>
+	<br>
+	<li>
+	URLs previously displayed but missed. We consider a URL missed when it was not clicked by the user and there were no clicked URLs at 		lower positions
+	</li>
+	<br>
+	<li>
+	URLs previously displayed but skipped. We consider a URL missed when it was not clicked by the user but at least one lower ranked URL 		was clicked.
+	</li>
+</ul>
+	For each URL, we count the frequency of each type. We then give relative weights to the counts of each of these types and take their sum. This weighted sum is now taken as a feature.
+
+
+<br><br>
+
+<li><b> Pari-wise Feature </b></li>
+	We propose to make a URL pair as a pair-wise feature for logistic regression. Mathematically, the value of a URL pair is defined as-
+	<p align="center">
+	f(url<sub>i</sub> , url<sub>j</sub> ) = 0 if url<sub>i</sub> = url<sub>j</sub>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>= 0 if url<sub>i</sub> url<sub>j</sub> do not occur in a SERP
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 1 if url<sub>i</sub> < url<sub>j</sub> and both occur in a SERP
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= -1 if url<sub>i</sub> > url<sub>j</sub> and both occur in a SERP
+	<p>
+</ul>
+</li>
+<br><br>
+
+<li><b class="ire2014_h4">Modelling and Training</b></li>
+
+<p>
+We use logistic regression with implementation of Vowpal Wabbit to predict the probability of a URL to be clicked. This is a project started at Yahoo! Research and continuing at Microsoft Research to design a fast, scalable, useful learning algorithm. VW is the essence of speed in machine learning, able to learn from terafeature datasets with ease. The main advantage of using Vowpal Wabbit over other regression tools us its extra- ordinary training speed. We were able to train 150 GB of data in an hour using Vowpal Wabbit. For training, clicks with non-zero relevance are marked as positive labels. In addition, the sample weight of positive samples is set to be equal to the relevance score, which give more attention to high-relevance clicks. For the learning algorithm, we use the individual learning rates and safe/importance aware updates. To fight against over-fitting, we use L2 regularization. These above configurations can be set by the Vowpal Wabbit&#39;s command line arguments, &#39;&minus;adaptive &minus;invariant &minus;l2 0.8e-8&#39;. The parameter &#39;&minus;f&#39; is for train model while &#39;&minus;d&#39; is for input data. The loss function that we use is logistic, for which we include two additional parameters &#39;&minus;loss_function logistic&#39;.
+</p>
+</li>
+</ul>
+
+
+        <h4 class="ire2014_h4">3.1. Assumptions</h4>
+	<br>
+        Following are the assumptions for the input data
+        <ul class="ire2014_list">
+            <li>Input data file should be in the correct specified format.</li>
+            <li>Input data should contain only digits and few alphabets like M,Q,C,T only.</li>
+        </ul>
+        
+        <h4 class="ire2014_h4">3.2. Architecture</h4>
+        <figure class="ire2014_imgright">
+            <img src="23-04-images/block_diagram.jpg" width="400px" height="300px">
+            <figcaption>Figure 1:Block Diagram showing the basic components of our system</figcaption>
+        </figure>
+        <br>
+	Architecture of the overall project is shown in figure 1, which depicts the flow of data from the input file upto the final output file generated.
+        <br><br>
+        <h4 class="ire2014_h4">3.3. Theory</h4>
+    <p> 
+   Since there are roughly one billion samples. Linear models&#39; computation complexity is O(samples). However, tree- based models&#39; complexity isO(samples log(samples)). LambdaMART has been shown to be one of the best algorithms for learning to rank. However, this GBM-like implementation causes difficulties in parallel implementation, it would be time-consuming for LambdaMART to go through all data. Although the point-wise random forest were reported to be competitive in learning to rank in both the 2010 Yahoo! Learning to Rank Challengers and the 2013 Expedia Learning to Rank Challenge, it is still too expensive for our computation resources, a four-core desktop. Of course, we could make a compromise - training a portion of data. However, the advantage of tree-based algorithms would be diminished accordingly. A generalized linear model could be closer to them. 
+</p>
+<p>We used a single logistic regression model with implementation of <b>Vowpal Wabbit</b> in this competition. Because the time limit, we did not compare the performance of tree-based models with the similar features but partial training data and was unable to make ensemble models.
+</p>
+        
+        <h3 class="ire2014_h3">4. Evaluation and Results</h3>
+        
+        We evaluated our results on the interface offered by Kaggle Challenge web page from
+ <a href="https://www.kaggle.com/c/yandex-personalized-web-search-challenge/submissions/attach">Here</a>.
+The submissions are evaluated using Normalized Discounted Cumulative Gain (NDCG) measure, which will be calculated using the ranking of URLs provided by participants for each query, and then averaged over queries. Mathematically, DCG is defined as a function of a given relevance list as follows-
+		<p align="center">DCG@10 = &Sigma;<sub> i=1 to 10</sub> 2<sup>rel<sub>i-1</sub></sup>/log<sub>2</sub>(i+1)</p>
+
+where rel i , i = 1,2, ... 10 is the relevance list that contain 10 URL&#39;s relevance values. IDCG@10 is the maximum possible (ideal) DCG for a given set of queries, documents, and relevance value. Then, NDCG@10 is given by 
+		<p align="center">NDCG@10=DCG@10 / IDCG@10	</p>
+
+The major results of each single logistic regression model are shown in Table 1. The base line NDCG score is 0.79133 of full test data. We first build a model taking the basic features including the user ID as well as the joint features mentioned before. Along with that we also included all the user specific features, both long term and short terms. This model gives us an NDCG score of 0.6453. Next, we represented the user- specific features differently, we give weights to each type of URLs and then obtain a linear weighted sum,individually for short term and long term. This gives us an NDCG score of 0.756. We then try removing the user ID from the basic features, as this might over-fit the data. This gave a slight improvement in performance, showing an NDCG score of 0.758.
+
+<p>
+	Finally, when our feature list contain basic feature (except the joint features), user based features, pair-wise features and when we consider all the clicked URL's by particular user as relevant to that user then we got .76587
+</p>
+<br><br>
+
+	<table align="center" border="1">
+	<tr>
+		<th>
+			Model
+		</th>
+		<th>
+			NDCG score
+		</th>
+	</tr>
+
+	<tr>
+		<td>
+			Basic (incl. user ID & joint features) + user- specific features 
+		</td>
+		<td>
+			0.6453
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+			Basic (without joint features but including user ID) + user-specific features
+		</td>
+		<td>
+			0.756
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+			Basic (without user ID) + user-specific features (10 user-specific features represented as a single feature) 
+		</td>
+		<td>
+			0.758
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+			Basic (without user ID)+ user-specific features(10 user-specificfeatures represented as asingle feature + pair-wise features
+		</td>
+		<td>
+			0.7518
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Basic (without joint features)+ user-specific features + pair-wise features
+			<br>
+			(when we consider all the clicked url's by a particular user as relevant )
+		</td>
+		<td>
+			0.76587
+		</td>
+	</tr>
+
+
+
+	</table>
+
+
+
+
+        <h3 class="ire2014_h3">5. Conclusion</h3>
+        The problem was challenging because of the huge size of the data and also, more importantly, because of the anonymized nature of the data. We have employed purely statistical methods for feature extraction. Finally we have used Logistic Regression, specifically Vowpal Wabbit for modeling and training, for its unique speed of training. We did not use LambdaMART for training because of limitations of our resources, and also because it is relatively much more time-consuming.
+
+        
+        <div class="ire2014_ref">
+            <h3 class="ire2014_h3">References</h3>
+            <ol>
+                <li>Song, Guocong. "Point-Wise Approach for Yandex Personalized Web Search Challenge."</li>
+
+                <li>Dou, Zhicheng, Ruihua Song, and Ji-Rong Wen. "A large-scale evaluation and analysis of personalized search strategies." Proceedings of the 16th international conference on World Wide Web. ACM, 2007.</li>
+
+                <li>Vowpal Wabbit. http://hunch.net/~vw/.</li>
+
+                <li>J. Duchi, E. Hazan, and Y. Singer. Adaptive subgradient methods for online learning and stochastic optimization. The Journal of Machine Learning Research, 999999:2121&minus; 2159, 2011</li>
+
+                <li>M. Shokouhi, R. W. White, P. Bennett, and F. Radlinski. Fighting search engine amnesia: reranking repeated results. In Proceedings of the 36th international ACM SIGIR conference on Research and development in information retrieval (SIGIR &#39;13), 2013. </li>
+
+                <li>Dou, Zhicheng, Ruihua Song, and Ji-Rong Wen. "A large-scale evaluation and analysis of personalized search strategies." Proceedings of the 16th international conference on World Wide Web. ACM, 2007. URL: http://goo.gl/jpGgqS</li>
+
+                <li>Shen, Xuehua, Bin Tan, and ChengXiang Zhai. "Context-sensitive information retrieval using implicit feedback." Proceedings of the 28th annual international ACM SIGIR conference on Research and development in information retrieval. ACM, 2005. URL: http://goo.gl/75VTUnWide Web. ACM, 2007. URL: http://goo.gl/jpGgqS </li>
+		
+		<li>Bennett, Paul N., et al. "Modeling the impact of short-and long-term behavior on search personalization." Proceedings of the 35th International ACM SIGIR conference on Research and development in information retrieval. ACM, 2012 </li>
+
+		<li>Volkovs, Maksims N. "Context Models For Web Search Personalization."</li>
+		
+		<li>Data source: “Personalized Web Search Challenge” URL:https://www.kaggle.com/c/yandex-personalized-web-search-challenge/data
+		</li>
+
+            </ol>
+        </div>
+        
+        <div class="ire2014_resources">
+            <h3 class="ire2014_h3">Resources</h3>
+            <h4>Code Base</h4>
+            <a href="https://github.com/crusader123/reRankURL" class="ire2014_link">Github Repository for Project's code and releated files</a>
+            
+            <h4>Slide Show</h4>
+            <a href="http://www.slideshare.net/shubhamsangal/re-ranking-based-on-personal-preference" class="ire2014_link">Slideshare Link</a>
+            
+            <h4>Video</h4>
+            <a href="https://www.youtube.com/watch?v=Rf0EThZdHwk&feature=youtu.be" class="ire2014_link">Youtube Demo Link</a>
+        </div>
+        
+    </div>
+    
+    </div>
+</body>
+</html>
